@@ -1,37 +1,38 @@
 # Use an official PHP runtime as a parent image
-FROM php:8.1-fpm
+FROM php:8.1-apache # Or your desired php version and webserver
 
-# Set working directory
+# Set the working directory to /var/www/html
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     zip \
     unzip \
-    git \
-    curl \
-    libpq-dev \
-    libonig-dev \
     libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip mbstring
+    && docker-php-ext-install zip pdo pdo_mysql
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copy composer.lock and composer.json
+COPY composer.lock composer.json ./
 
-# Copy existing application directory contents
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy the Laravel application
 COPY . .
 
-# Set file permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 777 storage bootstrap/cache
+# Set permissions for storage and bootstrap/cache directories
+RUN chmod -R 775 storage bootstrap/cache
+
+# Expose port 10000 (Render requirement)
+EXPOSE 10000
+
+# Configure Apache to listen on port 10000
+RUN sed -i 's/80/10000/g' /etc/apache2/sites-available/000-default.conf
+RUN a2enmod rewrite
+
+# Start Apache
+CMD ["apache2-foreground"]
 
 
 
-# Expose port 8000
-EXPOSE 8000
 
-# Use a non-root user for security
-USER www-data
-
-# Run migrations and start Laravel
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
