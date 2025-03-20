@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/contact', [App\Http\Controllers\HOUSE::class, 'contact'])->name('backend.contact');
 Route::resource('/House',\App\Http\Controllers\HOUSE::class);
-Route::resource('/Cottage', \App\Http\Controllers\construction::class);
+Route::resource('/Cottage', \App\Http\Controllers\Construction::class);
 
 
 //FRONTEND PAGE!!!!!
