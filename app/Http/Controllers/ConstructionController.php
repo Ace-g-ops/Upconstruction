@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Cottage;
 use Illuminate\Http\Request;
 
-class construction extends Controller
+
+class ConstructionController extends Controller
 {
     /**
      * Display a listing of the resource.
